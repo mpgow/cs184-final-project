@@ -62,6 +62,59 @@ loader.load('public/tamagotchi.gltf', function (gltf) {
 
 });
 
+// Buffer Geometry PLANE
+const vertices = [
+    // front
+    { pos: [-1, -1, 10], norm: [0, 0, 1], uv: [0, 0], },
+    { pos: [1, -1, 1], norm: [0, 0, 1], uv: [1, 0], },
+    { pos: [-1, 1, 1], norm: [0, 0, 1], uv: [0, 1], },
+
+    { pos: [-1, 1, 1], norm: [0, 0, 1], uv: [0, 1], },
+    { pos: [1, -1, 1], norm: [0, 0, 1], uv: [1, 0], },
+    { pos: [1, 1, 1], norm: [0, 0, 1], uv: [1, 1], },
+]
+
+const positions = [];
+const normals = [];
+const uvs = [];
+for (const vertex of vertices) {
+    positions.push(...vertex.pos);
+    normals.push(...vertex.norm);
+    uvs.push(...vertex.uv);
+}
+
+const tGeometry = new THREE.BufferGeometry();
+const positionNumComponents = 3;
+const normalNumComponents = 3;
+const uvNumComponents = 2;
+tGeometry.setAttribute(
+    'position',
+    new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents));
+tGeometry.setAttribute(
+    'normal',
+    new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
+tGeometry.setAttribute(
+    'uv',
+    new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
+
+const tLoader = new THREE.TextureLoader();
+const tTexture = tLoader.load('texture_1.png');
+tTexture.colorSpace = THREE.SRGBColorSpace;
+const tColor = 0xffffff
+function makeInstance(tGeometry, tColor, x) {
+
+    const tMaterial = new THREE.MeshPhongMaterial({ color: tColor, map: tTexture });
+
+    const tPlane = new THREE.Mesh(tGeometry, tMaterial);
+    scene.add(tPlane);
+
+    tPlane.position.x = x;
+    return tPlane;
+
+}
+
+const tPlane = makeInstance(tGeometry, tColor, -4)
+
 // CAMERA
 const fov = 45;
 const aspect = window.innerWidth / window.innerHeight // 2;  // the canvas default
@@ -87,7 +140,7 @@ function animate() {
     zCube.rotation.y += 0.00;
 
     if (tamagotchi) {
-        tamagotchi.rotation.x -= 0.00;
+        tamagotchi.rotation.x -= 0.00;  
         tamagotchi.rotation.y -= 0.00;
     }
 
