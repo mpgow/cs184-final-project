@@ -13,31 +13,48 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setAnimationLoop(animate);
 // document.body.appendChild(renderer.domElement); no longer necessary bc created our own canvas
 
+// LIGHT
 const color = 0xFFFFFF;
 const intensity = 3;
 const light = new THREE.DirectionalLight(color, intensity);
 light.position.set(- 1, 2, 4);
 scene.add(light);
 
+// YELLOW X CUBE
 const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+const xMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+const xCube = new THREE.Mesh(geometry, xMaterial);
+xCube.position.set(5,0,0)
+scene.add(xCube);
 
-const fov = 45;
-const aspect = window.innerWidth / window.innerHeight // 2;  // the canvas default
-const near = 0.1;
-const far = 100;
-const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(0, 10, 20);
+// BLUE Y CUBE
+const yMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+const yCube = new THREE.Mesh(geometry, yMaterial);
+yCube.position.set(0,5,0)
+scene.add(yCube);
 
-const controls = new OrbitControls(camera, canvas);
-controls.target.set(0, 5, 0);
-controls.update();
+// RED Z CUBE
+const zMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+const zCube = new THREE.Mesh(geometry, zMaterial);
+zCube.position.set(0,0,5)
+scene.add(zCube);
+
+// PLANE (with Pearto)
+const width = 9
+const height = 9
+const planeGeometry = new THREE.PlaneGeometry(width, height)
+const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+const plane = new THREE.Mesh(planeGeometry, planeMaterial)
+plane.position.set(0,-5,0)
+plane.rotation.x = Math.PI / 2
+scene.add(plane)
+
+// TAMAGOTCHI MODEL
+let tamagotchi = null;
 
 loader.load('public/tamagotchi.gltf', function (gltf) {
-
-    scene.add(gltf.scene);
+    tamagotchi = gltf.scene
+    scene.add(tamagotchi);
 
 }, undefined, function (error) {
 
@@ -45,10 +62,34 @@ loader.load('public/tamagotchi.gltf', function (gltf) {
 
 });
 
+// CAMERA
+const fov = 45;
+const aspect = window.innerWidth / window.innerHeight // 2;  // the canvas default
+const near = 0.1;
+const far = 100;
+const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+camera.position.set(0, 0, 10);
+
+// CAM CONTROLS (ORBIT)
+const controls = new OrbitControls(camera, canvas);
+controls.target.set(0, 0, 0);
+controls.update();
+
 function animate() {
 
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
+    xCube.rotation.x += 0.00;
+    xCube.rotation.y += 0.00;
+
+    yCube.rotation.x += 0.00;
+    yCube.rotation.y += 0.00;
+
+    zCube.rotation.x += 0.00;
+    zCube.rotation.y += 0.00;
+
+    if (tamagotchi) {
+        tamagotchi.rotation.x -= 0.00;
+        tamagotchi.rotation.y -= 0.00;
+    }
 
     renderer.render(scene, camera);
 
