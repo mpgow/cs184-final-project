@@ -11,14 +11,22 @@ scene.background = new THREE.Color(0xAAAAAA);
 const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setAnimationLoop(animate);
+renderer.shadowMap.enabled = true;
 // document.body.appendChild(renderer.domElement); no longer necessary bc created our own canvas
 
 // LIGHT
 const color = 0xFFFFFF;
 const intensity = 3;
 const light = new THREE.DirectionalLight(color, intensity);
-light.position.set(- 1, 2, 4);
+light.position.set(0, 3, 2);
+light.castShadow = true;
 scene.add(light);
+
+const skyColor = 0x96eaff
+const groundColor = 0xB97A20
+const skyIntensity = 3;
+const skyLight = new THREE.HemisphereLight(skyColor, groundColor, skyIntensity);
+scene.add(skyLight);
 
 // YELLOW X CUBE
 const geometry = new THREE.BoxGeometry(1, 1, 1);
@@ -39,7 +47,7 @@ const zCube = new THREE.Mesh(geometry, zMaterial);
 zCube.position.set(0,0,5)
 scene.add(zCube);
 
-// PLANE (with Pearto)
+// PLANE
 const width = 9
 const height = 9
 const planeGeometry = new THREE.PlaneGeometry(width, height)
@@ -56,13 +64,13 @@ loader.load('public/tamagotchi.gltf', function (gltf) {
     tamagotchi = gltf.scene
     scene.add(tamagotchi);
 
-}, undefined, function (error) {
+}, undefined, function (error) { // Loads fast enough right now to ignore onProgress
 
     console.error(error);
 
 });
 
-// Buffer Geometry PLANE
+// Buffer Geometry PLANE (with Pearto)
 const vertices = [
     // front
     { pos: [-1, -1, 10], norm: [0, 0, 1], uv: [0, 0], },
@@ -98,14 +106,16 @@ tGeometry.setAttribute(
     new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
 
 const tLoader = new THREE.TextureLoader();
-const tTexture = tLoader.load('texture_1.png');
+const tTexture = tLoader.load('pearto.png');
 tTexture.colorSpace = THREE.SRGBColorSpace;
 const tColor = 0xffffff
 function makeInstance(tGeometry, tColor, x) {
 
-    const tMaterial = new THREE.MeshPhongMaterial({ color: tColor, map: tTexture });
+    const tMaterial = new THREE.MeshPhongMaterial({ color: tColor, map: tTexture, side: THREE.FrontSide });
 
     const tPlane = new THREE.Mesh(tGeometry, tMaterial);
+    tPlane.castShadow = true;
+    tPlane.receiveShadow = true;
     scene.add(tPlane);
 
     tPlane.position.x = x;
