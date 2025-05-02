@@ -57,11 +57,99 @@ plane.position.set(0,-5,0)
 plane.rotation.x = Math.PI / 2
 scene.add(plane)
 
+// Planar Projection Camera
+// const planarCamera = new THREE.PerspectiveCamera(45,1,0.01,10);
+// planarCamera.position.set(0,0,2);
+// planarCamera.lookAt(0,0,0);
+// const planarMatrix = new THREE.Matrix4().multiplyMatrices(planarCamera.projectionMatrix, planarCamera.matrixWorldInverse); // Projector Matrix
+
+// Pearto texture
+const tLoader = new THREE.TextureLoader();
+const tTexture = tLoader.load('pearto.png');
+tTexture.colorSpace = THREE.SRGBColorSpace;
+
 // TAMAGOTCHI MODEL
 let tamagotchi = null;
 
+function planarVertexShader() {
+    return `
+    varying vec3 vProjector;
+    void main() {
+        vProjector = planarMatrix * modelMatrix * vec4(position, 1.0);
+        gl_position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);
+    }
+    `
+}
+
+function planarFragementShader() {
+    return `
+    uniform sampler2D tTexture;
+    varying vec4 vProjector;
+    void main() {
+    }
+    `
+}
+
+function tamaGeoSphere(geometry) {
+    geometry.computeBoundingSphere();
+    const center = geometry.boundingSphere.center;
+    const radius = geometry.boundingSphere.radius;
+    const pos = geometry.attributes.position;
+    const uv = new Float32Array(pos.count * 2);
+
+    for ( let i = 0; i < pos.count; i ++ ) {
+      const x = pos.getX(i) - center.x;
+      const y = pos.getY(i) - center.y;
+      const z = pos.getZ(i) - center.z;
+
+      const theta = Math.atan2( z, x ); // longitude around y axis
+      const phi   = Math.acos( y / radius ); // latitude down y axis
+
+      const u = ( theta + Math.PI ) / ( 2 * Math.PI ); // turning theta [-pi,pi] to [0,1]
+      const v = phi / Math.PI; // turning phi [0, pi] to [0,1]
+
+      uv[i * 2] = u;
+      uv[(i * 2) + 1] = v;
+    }
+    geometry.setAttribute( 'uv', new THREE.BufferAttribute( uv, 2 ) );
+}
+
 loader.load('public/tamagotchi.gltf', function (gltf) {
     tamagotchi = gltf.scene
+    tamagotchi.rotation.y = Math.PI / 2;
+    // function shellUpdate(Shell) {
+    //     if (Shell.isMesh) {
+    //         const planarGeometry = Shell.geometry;
+    //         const planarMaterial = new THREE.ShaderMaterial({
+    //             uniforms: {
+    //                 planarMatrix: { value: planarMatrix },
+    //                 tTexture: { value: tTexture },
+    //             },
+    //             vertexShader: planarVertexShader(),
+    //             fragmentShader: planarFragementShader(), 
+    //         })
+    //         const planarTama = new THREE.Mesh(planarGeometry, planarMaterial);
+    //         scene.add(planarTama);
+    //     }
+    // }
+    // tamagotchi.traverse(shellUpdate);
+    // tamaGeoSphere(tamagotchi.geometry);
+
+    function sphereUpdate(Shell) {
+        if (Shell.isMesh) {
+            tamaGeoSphere(Shell.geometry);
+            Shell.material = new THREE.MeshPhongMaterial({
+                map: tTexture,
+                side: THREE.FrontSide
+            })
+        }
+    }
+    tamagotchi.traverse(sphereUpdate);
+    // tamaGeoSphere(tamagotchi.geometry);
+    // tamagotchi.material = new THREE.MeshPhongMaterial({
+    //     map: tTexture,
+    //     side: THREE.FrontSide
+    // })
     scene.add(tamagotchi);
 
 }, undefined, function (error) { // Loads fast enough right now to ignore onProgress
@@ -69,6 +157,7 @@ loader.load('public/tamagotchi.gltf', function (gltf) {
     console.error(error);
 
 });
+
 
 // Buffer Geometry PLANE (with Pearto)
 const vertices = [
@@ -105,9 +194,9 @@ tGeometry.setAttribute(
     'uv',
     new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
 
-const tLoader = new THREE.TextureLoader();
-const tTexture = tLoader.load('pearto.png');
-tTexture.colorSpace = THREE.SRGBColorSpace;
+// const tLoader = new THREE.TextureLoader();
+// const tTexture = tLoader.load('pearto.png');
+// tTexture.colorSpace = THREE.SRGBColorSpace;
 const tColor = 0xffffff
 function makeInstance(tGeometry, tColor, x) {
 
