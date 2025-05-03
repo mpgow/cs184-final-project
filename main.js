@@ -108,8 +108,8 @@ function tamaGeoSphere(geometry) {
       const u = ( theta + Math.PI ) / ( 2 * Math.PI ); // turning theta [-pi,pi] to [0,1]
       const v = phi / Math.PI; // turning phi [0, pi] to [0,1]
 
-      uv[i * 2] = u;
-      uv[(i * 2) + 1] = v;
+      uv[i * 2] = u -.1;
+      uv[(i * 2) + 1] = 1 - v;
     }
     geometry.setAttribute( 'uv', new THREE.BufferAttribute( uv, 2 ) );
 }
