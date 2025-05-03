@@ -97,13 +97,13 @@ function tamaGeoSphere(geometry) {
     const pos = geometry.attributes.position;
     const uv = new Float32Array(pos.count * 2);
 
-    for ( let i = 0; i < pos.count; i ++ ) {
+    for ( let i = 0; i < pos.count; i++ ) {
       const x = pos.getX(i) - center.x;
       const y = pos.getY(i) - center.y;
       const z = pos.getZ(i) - center.z;
 
       const theta = Math.atan2( z, x ); // longitude around y axis
-      const phi   = Math.acos( y / radius ); // latitude down y axis
+      const phi = Math.acos( y / radius ); // latitude down y axis
 
       const u = ( theta + Math.PI ) / ( 2 * Math.PI ); // turning theta [-pi,pi] to [0,1]
       const v = phi / Math.PI; // turning phi [0, pi] to [0,1]
@@ -112,6 +112,32 @@ function tamaGeoSphere(geometry) {
       uv[(i * 2) + 1] = 1 - v;
     }
     geometry.setAttribute( 'uv', new THREE.BufferAttribute( uv, 2 ) );
+}
+
+function tamaGeoCylinder(geometry) {
+    geometry.computeBoundingBox();
+    const center = geometry.boundingBox.getCenter(new THREE.Vector3);
+    const top = geometry.boundingBox.min.y;
+    const bot = geometry.boundingBox.max.y;
+    const h = top - bot;
+    const pos = geometry.attributes.position;
+    const uv = new Float32Array(pos.count * 2);
+
+    for ( let i = 0; i < pos.count; i++ ) {
+        const x = pos.getX(i) - center.x;
+        const y = pos.getY(i) - center.y;
+        const z = pos.getZ(i) - center.z;
+
+        const theta = Math.atan2( z, x );
+        const height = y;
+
+        const u = (theta + Math.PI) / (2 * Math.PI);
+        const v = (height +  (h / 2)) / h;
+
+        uv[i * 2] = u -.1;
+        uv[(i * 2) + 1] = 1 - v;
+    }
+    geometry.setAttribute( 'uv', new THREE.BufferAttribute( uv, 2 ));
 }
 
 loader.load('public/tamagotchi.gltf', function (gltf) {
@@ -137,7 +163,8 @@ loader.load('public/tamagotchi.gltf', function (gltf) {
 
     function sphereUpdate(Shell) {
         if (Shell.isMesh) {
-            tamaGeoSphere(Shell.geometry);
+            // tamaGeoSphere(Shell.geometry);
+            tamaGeoCylinder(Shell.geometry);
             Shell.material = new THREE.MeshPhongMaterial({
                 map: tTexture,
                 side: THREE.FrontSide
