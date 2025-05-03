@@ -140,7 +140,41 @@ function tamaGeoCylinder(geometry) {
     geometry.setAttribute( 'uv', new THREE.BufferAttribute( uv, 2 ));
 }
 
-loader.load('public/tamagotchi.gltf', function (gltf) {
+function tamaGeoEllipsoid(geometry) { 
+    geometry.computeBoundingBox();
+    const center = geometry.boundingBox.getCenter(new THREE.Vector3);
+    const xMin = geometry.boundingBox.min.x;
+    const xMax = geometry.boundingBox.max.x;
+    const xWidth = xMax - xMin;
+    const yMin = geometry.boundingBox.min.y;
+    const yMax = geometry.boundingBox.max.y;
+    const yHeight = yMax - yMin;
+    const zMin = geometry.boundingBox.min.z;
+    const zMax = geometry.boundingBox.max.z;
+    const zLength = zMax - zMin;
+    const xRadius = xWidth * 0.5; // a
+    const yRadius = yHeight * 0.5; // b
+    const zRadius = zLength * 0.5; // c
+    const pos = geometry.attributes.position;
+    const uv = new Float32Array(pos.count * 2);
+
+    for (let i = 0; i < pos.count; i++) {
+        const px = (pos.getX(i) - center.x) / xRadius; 
+        const py = (pos.getY(i) - center.y) / yRadius;
+        const pz = (pos.getZ(i) - center.z) / zRadius;
+        // estimate normalized points as though they were a unit sphere before calculating angles
+        const theta = Math.atan2(pz, px);
+        const phi = Math.acos(py); 
+        const u = (theta + Math.PI) / (2 * Math.PI);
+        const v = phi / Math.PI;
+
+        uv[ 2 * i ] = u-.1;
+        uv[ 2 * i + 1 ] = 1 - v;
+    }
+    geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+}
+
+loader.load('public/tamagotchi_v2.gltf', function (gltf) {
     tamagotchi = gltf.scene
     tamagotchi.rotation.y = Math.PI / 2;
     // function shellUpdate(Shell) {
@@ -164,7 +198,8 @@ loader.load('public/tamagotchi.gltf', function (gltf) {
     function sphereUpdate(Shell) {
         if (Shell.isMesh) {
             // tamaGeoSphere(Shell.geometry);
-            tamaGeoCylinder(Shell.geometry);
+            // tamaGeoCylinder(Shell.geometry);
+            tamaGeoEllipsoid(Shell.geometry);
             Shell.material = new THREE.MeshPhongMaterial({
                 map: tTexture,
                 side: THREE.FrontSide
