@@ -23,10 +23,25 @@ const mountainMap = cubeTextureLoader.load([
     'pz1.png',
     'nz1.png'
     ])
-
+const SFMap = cubeTextureLoader.load([
+    'px2.png',
+    'nx2.png',
+    'py2.png',
+    'ny2.png',
+    'pz2.png',
+    'nz2.png'
+    ])
+const PatrickMap = cubeTextureLoader.load([
+    'px3.png',
+    'nx3.png',
+    'py3.png',
+    'ny3.png',
+    'pz3.png',
+    'nz3.png'
+])
 const plainEnvironment = new THREE.Color(0xAAAAAA)
 
-const environmentArray = [plainEnvironment,cityMap,mountainMap]
+const environmentArray = [plainEnvironment,cityMap,mountainMap,SFMap]
 scene.background = environmentArray[environmentPicker];
 //scene.background = new THREE.Color(0xAAAAAA);
 
