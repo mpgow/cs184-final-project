@@ -149,7 +149,7 @@ function tamaGeoSphere(geometry) {
       const u = ( theta + Math.PI ) / ( 2 * Math.PI ); // turning theta [-pi,pi] to [0,1]
       const v = phi / Math.PI; // turning phi [0, pi] to [0,1]
 
-      uv[i * 2] = u -.1;
+      uv[i * 2] = u;
       uv[(i * 2) + 1] = 1 - v;
     }
     geometry.setAttribute( 'uv', new THREE.BufferAttribute( uv, 2 ) );
@@ -175,7 +175,7 @@ function tamaGeoCylinder(geometry) {
         const u = (theta + Math.PI) / (2 * Math.PI);
         const v = (height +  (h / 2)) / h;
 
-        uv[i * 2] = u -.1;
+        uv[i * 2] = u;
         uv[(i * 2) + 1] = 1 - v;
     }
     geometry.setAttribute( 'uv', new THREE.BufferAttribute( uv, 2 ));
@@ -209,7 +209,7 @@ function tamaGeoEllipsoid(geometry) {
         const u = (theta + Math.PI) / (2 * Math.PI);
         const v = phi / Math.PI;
 
-        uv[ 2 * i ] = u-.1;
+        uv[ 2 * i ] = u;
         uv[ 2 * i + 1 ] = 1 - v;
     }
     geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
@@ -240,7 +240,7 @@ function addReference(texture) {
   } else if (projectionType == tamaGeoEllipsoid) {
     refGeometry = new THREE.SphereGeometry(1, 32, 16);
     refGeometry.scale(xHeight, yHeight, zHeight);
-    tamaGeoEllipsoid(refGeometry);
+    // tamaGeoEllipsoid(refGeometry);
   }
   let refMaterial = new THREE.MeshPhongMaterial({
     map: texture,
