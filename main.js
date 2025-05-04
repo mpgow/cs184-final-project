@@ -220,35 +220,40 @@ let refObject;
 let projectionType = tamaGeoSphere;  
 
 function addReference(texture) {
-  if (refObject) {
-    scene.remove(refObject);
-    refObject.geometry.dispose();
-    refObject.material.dispose();
-    refObject = null;
-  }
-  let refGeometry;
-  const sideR = Math.max(tamaBox.max.x - tamaBox.min.x, tamaBox.max.y - tamaBox.min.y) / 2;
-  const xHeight = (tamaBox.max.x - tamaBox.min.x) / 2;
-  const yHeight = (tamaBox.max.y - tamaBox.min.y) / 2;
-  const zHeight = (tamaBox.max.z - tamaBox.min.z) / 2;
-  const Height = (tamaBox.max.y - tamaBox.min.y);
+    if (refObject) {
+        scene.remove(refObject);
+        refObject.geometry.dispose();
+        refObject.material.dispose();
+        refObject = null;
+    }
+    let refGeometry;
+    const sideR = Math.max(tamaBox.max.x - tamaBox.min.x, tamaBox.max.y - tamaBox.min.y) / 2;
+    const xHeight = (tamaBox.max.x - tamaBox.min.x) / 2;
+    const yHeight = (tamaBox.max.y - tamaBox.min.y) / 2;
+    const zHeight = (tamaBox.max.z - tamaBox.min.z) / 2;
+    const Height = (tamaBox.max.y - tamaBox.min.y);
 
-  if (projectionType == tamaGeoSphere) {
-    refGeometry = new THREE.SphereGeometry(yHeight, 32, 16);
-  } else if (projectionType == tamaGeoCylinder) {
-    refGeometry = new THREE.CylinderGeometry(sideR, sideR, Height, 16);
-  } else if (projectionType == tamaGeoEllipsoid) {
-    refGeometry = new THREE.SphereGeometry(1, 32, 16);
-    refGeometry.scale(xHeight, yHeight, zHeight);
-    // tamaGeoEllipsoid(refGeometry);
-  }
-  let refMaterial = new THREE.MeshPhongMaterial({
-    map: texture,
-    side: THREE.FrontSide
-  });
-  refObject = new THREE.Mesh(refGeometry, refMaterial);
-  refObject.position.set(2, 0, 0);
-  scene.add(refObject);
+    if (projectionType == tamaGeoSphere) {
+        refGeometry = new THREE.SphereGeometry(yHeight, 32, 16);
+    } else if (projectionType == tamaGeoCylinder) {
+        refGeometry = new THREE.CylinderGeometry(sideR, sideR, Height, 16);
+    } else if (projectionType == tamaGeoEllipsoid) {
+        refGeometry = new THREE.SphereGeometry(1, 32, 16);
+        refGeometry.scale(xHeight, yHeight, zHeight);
+        // tamaGeoEllipsoid(refGeometry);
+    }
+    let refMaterial = new THREE.MeshPhongMaterial({
+        map: texture,
+        side: THREE.FrontSide
+    });
+    refObject = new THREE.Mesh(refGeometry, refMaterial);
+    refObject.position.set(0, 0, 2);
+    if (projectionType == tamaGeoCylinder) {
+        refObject.rotation.y = Math.PI / 2;
+    } else {
+    refObject.rotation.y = Math.PI;
+    }
+    scene.add(refObject);
 }
 
 function projectionUpdate(Shell) {
@@ -268,9 +273,10 @@ function projectionUpdate(Shell) {
     }
 }
 
-loader.load('public/tamagotchi_shell_only.gltf', function (gltf) {
+loader.load('public/tamagotchi_idkkkkkk.gltf', function (gltf) {
     tamagotchi = gltf.scene
-    tamagotchi.rotation.y = Math.PI / 2;
+    // tamagotchi.rotation.y = Math.PI / 2;
+
     // function shellUpdate(Shell) {
     //     if (Shell.isMesh) {
     //         const planarGeometry = Shell.geometry;
