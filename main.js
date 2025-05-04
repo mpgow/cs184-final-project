@@ -174,6 +174,18 @@ function tamaGeoEllipsoid(geometry) {
     geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
 }
 
+let projectionType = tamaGeoSphere;
+
+function projectionUpdate(Shell) {
+    if (Shell.isMesh) {
+        projectionType(Shell.geometry);
+        Shell.material = new THREE.MeshPhongMaterial({
+            map: tTexture,
+            side: THREE.FrontSide
+        })
+    }
+}
+
 loader.load('public/tamagotchi_shell_only.gltf', function (gltf) {
     tamagotchi = gltf.scene
     tamagotchi.rotation.y = Math.PI / 2;
@@ -195,23 +207,25 @@ loader.load('public/tamagotchi_shell_only.gltf', function (gltf) {
     // tamagotchi.traverse(shellUpdate);
     // tamaGeoSphere(tamagotchi.geometry);
 
-    function sphereUpdate(Shell) {
-        if (Shell.isMesh) {
-            // tamaGeoSphere(Shell.geometry);
-            // tamaGeoCylinder(Shell.geometry);
-            tamaGeoEllipsoid(Shell.geometry);
-            Shell.material = new THREE.MeshPhongMaterial({
-                map: tTexture,
-                side: THREE.FrontSide
-            })
-        }
-    }
-    tamagotchi.traverse(sphereUpdate);
+    // function sphereUpdate(Shell) {
+    //     if (Shell.isMesh) {
+    //         // tamaGeoSphere(Shell.geometry);
+    //         // tamaGeoCylinder(Shell.geometry);
+    //         tamaGeoEllipsoid(Shell.geometry);
+    //         Shell.material = new THREE.MeshPhongMaterial({
+    //             map: tTexture,
+    //             side: THREE.FrontSide
+    //         })
+    //     }
+    // }
+
+    // tamagotchi.traverse(sphereUpdate);
     // tamaGeoSphere(tamagotchi.geometry);
     // tamagotchi.material = new THREE.MeshPhongMaterial({
     //     map: tTexture,
     //     side: THREE.FrontSide
     // })
+    tamagotchi.traverse(projectionUpdate);
     scene.add(tamagotchi);
 
 }, undefined, function (error) { // Loads fast enough right now to ignore onProgress
@@ -288,6 +302,30 @@ camera.position.set(0, 0, 10);
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 0, 0);
 controls.update();
+
+// BUTTONS (from index.html)
+
+document.getElementById('buttonSphere').addEventListener('click', function () {
+    projectionType = tamaGeoSphere;
+    if (tamagotchi) {
+        tamagotchi.traverse(projectionUpdate);
+    } 
+  });
+  
+  document.getElementById('buttonCylinder').addEventListener('click', function () {
+    projectionType = tamaGeoCylinder;
+    if (tamagotchi) {
+        tamagotchi.traverse(projectionUpdate);
+    }
+  });
+  
+  document.getElementById('buttonEllipsoid').addEventListener('click', function () {
+    projectionType = tamaGeoEllipsoid;
+    if (tamagotchi) {
+        tamagotchi.traverse(projectionUpdate);
+    }
+  });
+  
 
 function animate() {
 
