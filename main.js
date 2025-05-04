@@ -5,7 +5,16 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 const canvas = document.querySelector('#c');
 const loader = new GLTFLoader();
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xAAAAAA);
+const cubeTextureLoader = new THREE.cubeTextureLoader()
+const environmentMap = cubeTextureLoader.load([
+
+
+    
+])
+
+
+//scene.background = new THREE.Color(0xAAAAAA);
+
 // const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 
 const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
