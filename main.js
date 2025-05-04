@@ -488,6 +488,10 @@ document.getElementById('uploadInput').addEventListener('change', function (even
 });
 
 document.getElementById('buttonReset').addEventListener('click', function () {
+customDraw = false;
+drawCtx.fillStyle = 'white';
+drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+customCanvasTexture.needsUpdate = true;
 uploadTexture = defaultTexture;
 projectionType = tamaGeoSphere;
 toolPanel.style.display = 'none';
