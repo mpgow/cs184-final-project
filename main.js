@@ -65,7 +65,7 @@ scene.add(plane)
 
 // Pearto texture
 const tLoader = new THREE.TextureLoader();
-const tTexture = tLoader.load('pearto.png');
+let tTexture = tLoader.load('pearto.png');
 tTexture.colorSpace = THREE.SRGBColorSpace;
 
 // TAMAGOTCHI MODEL
@@ -374,15 +374,20 @@ controls.update();
         tamagotchi.traverse(projectionUpdate);
     }
   });
-
   document.getElementById('buttonDrawCustomTexture').addEventListener('click', function () {
     customDraw = !customDraw;
-    document.getElementById('drawingTools').style.display = customDraw ? 'block' : 'none';
+
+    if (customDraw){
+        document.getElementById('drawingTools').style.display = 'block'
+    } else {
+        document.getElementById('drawingTools').style.display = 'none'
+    }
     if (customDraw) {
         if (tamagotchi) {
             tamagotchi.traverse(function (mesh) {
                 if (mesh.isMesh) {
                     mesh.material.map = customCanvasTexture;
+                    tTexture = customCanvasTexture
                     mesh.material.needsUpdate = true;
                 }
             });
@@ -398,6 +403,43 @@ controls.update();
         drawCtx.fillStyle = 'white';
         drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
         customCanvasTexture.needsUpdate = true;
+    });
+
+    document.getElementById('buttonCustomUpload').addEventListener('click', function () {
+        document.getElementById('uploadInput').click();
+    });
+    document.getElementById('uploadInput').addEventListener('change', function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function () {
+                const newTexture = new THREE.Texture(img);
+                newTexture.needsUpdate = true;
+                newTexture.colorSpace = THREE.SRGBColorSpace;
+
+                tTexture = newTexture; // Replace global texture
+
+                if (tamagotchi) {
+                    tamagotchi.traverse(projectionUpdate);
+                }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+    
+    document.getElementById('buttonReset').addEventListener('click', function () {
+    tTexture = tLoader.load('pearto.png');
+    tTexture.colorSpace = THREE.SRGBColorSpace;
+    customDraw = false
+    projectionType = tamaGeoSphere;
+    toolPanel.style.display = 'none';
+    if (tamagotchi) {
+        tamagotchi.traverse(projectionUpdate);
+    }
     });
 
   
