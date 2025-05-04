@@ -348,99 +348,97 @@ controls.update();
 
 // BUTTONS (from index.html)
 
-    document.getElementById('buttonSphere').addEventListener('click', function () {
-        customDraw = false
-        projectionType = tamaGeoSphere;
-        toolPanel.style.display = 'none';
-        if (tamagotchi) {
-            tamagotchi.traverse(projectionUpdate);
-        } 
-    });
+document.getElementById('buttonSphere').addEventListener('click', function () {
+    customDraw = false
+    projectionType = tamaGeoSphere;
+    toolPanel.style.display = 'none';
+    if (tamagotchi) {
+        tamagotchi.traverse(projectionUpdate);
+    } 
+});
   
-  document.getElementById('buttonCylinder').addEventListener('click', function () {
+document.getElementById('buttonCylinder').addEventListener('click', function () {
     customDraw = false
     projectionType = tamaGeoCylinder;
     toolPanel.style.display = 'none';
     if (tamagotchi) {
         tamagotchi.traverse(projectionUpdate);
     }
-  });
+});
   
-  document.getElementById('buttonEllipsoid').addEventListener('click', function () {
+document.getElementById('buttonEllipsoid').addEventListener('click', function () {
     customDraw = false
     projectionType = tamaGeoEllipsoid;
     toolPanel.style.display = 'none';
     if (tamagotchi) {
         tamagotchi.traverse(projectionUpdate);
     }
-  });
-  document.getElementById('buttonDrawCustomTexture').addEventListener('click', function () {
+});
+document.getElementById('buttonDrawCustomTexture').addEventListener('click', function () {
     customDraw = !customDraw;
 
-    if (customDraw){
+    if (customDraw) { // If user wants to draw their texture
         document.getElementById('drawingTools').style.display = 'block'
-    } else {
-        document.getElementById('drawingTools').style.display = 'none'
-    }
-    if (customDraw) {
         if (tamagotchi) {
             tamagotchi.traverse(function (mesh) {
                 if (mesh.isMesh) {
                     mesh.material.map = customCanvasTexture;
-                    tTexture = customCanvasTexture
+                    // tTexture = customCanvasTexture;
                     mesh.material.needsUpdate = true;
                 }
             });
         }
-    } else {
-        projectionType = tamaGeoSphere
+    } else { // If user wants to upload their texture
+        document.getElementById('drawingTools').style.display = 'none'
         if (tamagotchi) {
+            projectionType = tamaGeoSphere;
             tamagotchi.traverse(projectionUpdate);
-            }
         }
-    });
-    document.getElementById('clearButton').addEventListener('click', function () {
-        drawCtx.fillStyle = 'white';
-        drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
-        customCanvasTexture.needsUpdate = true;
-    });
+    }   
+});
 
-    document.getElementById('buttonCustomUpload').addEventListener('click', function () {
-        document.getElementById('uploadInput').click();
-    });
-    document.getElementById('uploadInput').addEventListener('change', function (event) {
-        const file = event.target.files[0];
-        if (!file) return;
+document.getElementById('clearButton').addEventListener('click', function () {
+    drawCtx.fillStyle = 'white';
+    drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+    customCanvasTexture.needsUpdate = true;
+});
 
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const img = new Image();
-            img.onload = function () {
-                const newTexture = new THREE.Texture(img);
-                newTexture.needsUpdate = true;
-                newTexture.colorSpace = THREE.SRGBColorSpace;
+document.getElementById('buttonCustomUpload').addEventListener('click', function () {
+    document.getElementById('uploadInput').click();
+});
+document.getElementById('uploadInput').addEventListener('change', function (event) {
+    const file = event.target.files[0];
+    if (!file) return;
 
-                tTexture = newTexture; // Replace global texture
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        const img = new Image();
+        img.onload = function () {
+            const newTexture = new THREE.Texture(img);
+            newTexture.needsUpdate = true;
+            newTexture.colorSpace = THREE.SRGBColorSpace;
 
-                if (tamagotchi) {
-                    tamagotchi.traverse(projectionUpdate);
-                }
-            };
-            img.src = e.target.result;
+            tTexture = newTexture; // Replace global texture
+
+            if (tamagotchi) {
+                tamagotchi.traverse(projectionUpdate);
+            }
         };
-        reader.readAsDataURL(file);
-    });
-    
-    document.getElementById('buttonReset').addEventListener('click', function () {
-    tTexture = tLoader.load('pearto.png');
-    tTexture.colorSpace = THREE.SRGBColorSpace;
-    customDraw = false
-    projectionType = tamaGeoSphere;
-    toolPanel.style.display = 'none';
-    if (tamagotchi) {
-        tamagotchi.traverse(projectionUpdate);
-    }
-    });
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+});
+
+document.getElementById('buttonReset').addEventListener('click', function () {
+tTexture = tLoader.load('pearto.png');
+tTexture.colorSpace = THREE.SRGBColorSpace;
+customDraw = false
+projectionType = tamaGeoSphere;
+toolPanel.style.display = 'none';
+if (tamagotchi) {
+    tamagotchi.traverse(projectionUpdate);
+}
+});
 
   
 
