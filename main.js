@@ -464,6 +464,7 @@ document.getElementById('buttonCustomUpload').addEventListener('click', function
     document.getElementById('uploadInput').click();
 });
 document.getElementById('uploadInput').addEventListener('change', function (event) {
+    customDraw = false;
     const file = event.target.files[0];
     if (!file) return;
 
