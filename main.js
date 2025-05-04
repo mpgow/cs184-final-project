@@ -65,8 +65,10 @@ scene.add(plane)
 
 // Pearto texture
 const tLoader = new THREE.TextureLoader();
-let tTexture = tLoader.load('pearto.png');
-tTexture.colorSpace = THREE.SRGBColorSpace;
+const defaultTexture = tLoader.load('pearto.png');
+defaultTexture.colorSpace = THREE.SRGBColorSpace;
+let uploadTexture = defaultTexture;
+let drawnTexture;
 
 // TAMAGOTCHI MODEL
 let tamagotchi = null;
@@ -119,10 +121,6 @@ function draw(e) {
 
     customCanvasTexture.needsUpdate = true;
 }
-
-
-
-
 
 function planarFragementShader() {
     return `
@@ -217,15 +215,56 @@ function tamaGeoEllipsoid(geometry) {
     geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
 }
 
-let projectionType = tamaGeoSphere;
+let tamaBox, tamaSphere;
+let refObject;
+let projectionType = tamaGeoSphere;  
+
+function addReference(texture) {
+  if (refObject) {
+    scene.remove(refObject);
+    refObject.geometry.dispose();
+    refObject.material.dispose();
+    refObject = null;
+  }
+  let refGeometry;
+  const sideR = Math.max(tamaBox.max.x - tamaBox.min.x, tamaBox.max.y - tamaBox.min.y) / 2;
+  const xHeight = (tamaBox.max.x - tamaBox.min.x) / 2;
+  const yHeight = (tamaBox.max.y - tamaBox.min.y) / 2;
+  const zHeight = (tamaBox.max.z - tamaBox.min.z) / 2;
+  const Height = (tamaBox.max.y - tamaBox.min.y);
+
+  if (projectionType == tamaGeoSphere) {
+    refGeometry = new THREE.SphereGeometry(yHeight, 32, 16);
+  } else if (projectionType == tamaGeoCylinder) {
+    refGeometry = new THREE.CylinderGeometry(sideR, sideR, Height, 16);
+  } else if (projectionType == tamaGeoEllipsoid) {
+    refGeometry = new THREE.SphereGeometry(1, 32, 16);
+    refGeometry.scale(xHeight, yHeight, zHeight);
+    tamaGeoEllipsoid(refGeometry);
+  }
+  let refMaterial = new THREE.MeshPhongMaterial({
+    map: texture,
+    side: THREE.FrontSide
+  });
+  refObject = new THREE.Mesh(refGeometry, refMaterial);
+  refObject.position.set(2, 0, 0);
+  scene.add(refObject);
+}
 
 function projectionUpdate(Shell) {
     if (Shell.isMesh) {
         projectionType(Shell.geometry);
-        Shell.material = new THREE.MeshPhongMaterial({
-            map: tTexture,
-            side: THREE.FrontSide
-        })
+        if (!customDraw) {
+            Shell.material = new THREE.MeshPhongMaterial({
+                map: uploadTexture,
+                side: THREE.FrontSide
+            });
+        } else {
+            Shell.material = new THREE.MeshPhongMaterial({
+                map: drawnTexture,
+                side: THREE.FrontSide
+            });
+        }
     }
 }
 
@@ -269,7 +308,11 @@ loader.load('public/tamagotchi_shell_only.gltf', function (gltf) {
     //     side: THREE.FrontSide
     // })
     tamagotchi.traverse(projectionUpdate);
+    tamagotchi.position.set(0,-.85,0);
     scene.add(tamagotchi);
+    tamaBox = new THREE.Box3().setFromObject(tamagotchi);
+    // tamaSphere = tamaBox.getBoundingSphere(new THREE.Sphere);
+    addReference(defaultTexture);
 
 }, undefined, function (error) { // Loads fast enough right now to ignore onProgress
 
@@ -319,7 +362,7 @@ tGeometry.setAttribute(
 const tColor = 0xffffff
 function makeInstance(tGeometry, tColor, x) {
 
-    const tMaterial = new THREE.MeshPhongMaterial({ color: tColor, map: tTexture, side: THREE.FrontSide });
+    const tMaterial = new THREE.MeshPhongMaterial({ color: tColor, map: defaultTexture, side: THREE.FrontSide });
 
     const tPlane = new THREE.Mesh(tGeometry, tMaterial);
     tPlane.castShadow = true;
@@ -347,31 +390,42 @@ controls.target.set(0, 0, 0);
 controls.update();
 
 // BUTTONS (from index.html)
-
 document.getElementById('buttonSphere').addEventListener('click', function () {
-    customDraw = false
     projectionType = tamaGeoSphere;
     toolPanel.style.display = 'none';
     if (tamagotchi) {
         tamagotchi.traverse(projectionUpdate);
-    } 
+    }
+    if (!customDraw) {
+        addReference(uploadTexture);
+    } else {
+        addReference(drawnTexture);
+    }
 });
   
 document.getElementById('buttonCylinder').addEventListener('click', function () {
-    customDraw = false
     projectionType = tamaGeoCylinder;
     toolPanel.style.display = 'none';
     if (tamagotchi) {
         tamagotchi.traverse(projectionUpdate);
     }
+    if (!customDraw) {
+        addReference(uploadTexture);
+    } else {
+        addReference(drawnTexture);
+    }
 });
   
 document.getElementById('buttonEllipsoid').addEventListener('click', function () {
-    customDraw = false
     projectionType = tamaGeoEllipsoid;
     toolPanel.style.display = 'none';
     if (tamagotchi) {
         tamagotchi.traverse(projectionUpdate);
+    }
+    if (!customDraw) {
+        addReference(uploadTexture);
+    } else {
+        addReference(drawnTexture);
     }
 });
 document.getElementById('buttonDrawCustomTexture').addEventListener('click', function () {
@@ -387,12 +441,14 @@ document.getElementById('buttonDrawCustomTexture').addEventListener('click', fun
                     mesh.material.needsUpdate = true;
                 }
             });
+            drawnTexture = customCanvasTexture; 
+            addReference(drawnTexture);
         }
     } else { // If user wants to upload their texture
         document.getElementById('drawingTools').style.display = 'none'
         if (tamagotchi) {
-            projectionType = tamaGeoSphere;
             tamagotchi.traverse(projectionUpdate);
+            addReference(uploadTexture);
         }
     }   
 });
@@ -404,6 +460,7 @@ document.getElementById('clearButton').addEventListener('click', function () {
 });
 
 document.getElementById('buttonCustomUpload').addEventListener('click', function () {
+    customDraw = !customDraw;
     document.getElementById('uploadInput').click();
 });
 document.getElementById('uploadInput').addEventListener('change', function (event) {
@@ -418,11 +475,12 @@ document.getElementById('uploadInput').addEventListener('change', function (even
             newTexture.needsUpdate = true;
             newTexture.colorSpace = THREE.SRGBColorSpace;
 
-            tTexture = newTexture; // Replace global texture
+            uploadTexture = newTexture; // Replace global texture
 
             if (tamagotchi) {
                 tamagotchi.traverse(projectionUpdate);
             }
+            addReference(uploadTexture);
         };
         img.src = e.target.result;
     };
@@ -430,17 +488,14 @@ document.getElementById('uploadInput').addEventListener('change', function (even
 });
 
 document.getElementById('buttonReset').addEventListener('click', function () {
-tTexture = tLoader.load('pearto.png');
-tTexture.colorSpace = THREE.SRGBColorSpace;
-customDraw = false
+uploadTexture = defaultTexture;
 projectionType = tamaGeoSphere;
 toolPanel.style.display = 'none';
 if (tamagotchi) {
     tamagotchi.traverse(projectionUpdate);
 }
+addReference(uploadTexture);
 });
-
-  
 
 function animate() {
 
