@@ -6,15 +6,15 @@ const canvas = document.querySelector('#c');
 const loader = new GLTFLoader();
 const scene = new THREE.Scene();
 const cubeTextureLoader = new THREE.CubeTextureLoader()
+let environmentPicker = 0;
 const cityMap = cubeTextureLoader.load([
-'px.png',
-'nx.png',
-'py.png',
-'ny.png',
-'pz.png',
-'nz.png'
+    'px.png',
+    'nx.png',
+    'py.png',
+    'ny.png',
+    'pz.png',
+    'nz.png'
 ])
-
 const mountainMap = cubeTextureLoader.load([
     'px1.png',
     'nx1.png',
@@ -24,8 +24,10 @@ const mountainMap = cubeTextureLoader.load([
     'nz1.png'
     ])
 
-scene.background = cityMap;
+const plainEnvironment = new THREE.Color(0xAAAAAA)
 
+const environmentArray = [plainEnvironment,cityMap,mountainMap]
+scene.background = environmentArray[environmentPicker];
 //scene.background = new THREE.Color(0xAAAAAA);
 
 // const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -529,6 +531,17 @@ if (tamagotchi) {
 }
 addReference(uploadTexture);
 });
+
+document.getElementById('buttonScene').addEventListener('click', function () {
+    environmentPicker += 1;
+    if (environmentPicker == environmentArray.length) {
+        environmentPicker = 0;
+    }
+    scene.background = environmentArray[environmentPicker];
+    scene.background.needsUpdate = true;
+})
+
+
 
 function animate() {
 
