@@ -28,6 +28,11 @@
             top: 10px;
             left: 400px;
         }
+        #buttonDrawCustomTexture {
+            position: absolute;
+            top: 10px;
+            left: 600px;
+        }
     </style>
     <script type="importmap">
         {
@@ -40,9 +45,15 @@
     <!--NOTE: Using most recent version as of 4/20/2025-->
 </head>
 <body>
+    <div id="drawingTools" style="position: absolute; right: 20px; top: 20px; display: none; z-index: 10;">
+        <canvas id="drawCanvas" width="256" height="256" style="border: 1px solid white; display: block; margin-bottom: 8px;"></canvas>
+        <input type="color" id="colorPicker" value="#000000" style="margin-bottom: 8px; display: block;">
+        <button id="clearButton" style="width: 100%;">Clear</button>
+    </div>      
     <button id="buttonSphere">Spherical Coordinates</button>
     <button id="buttonCylinder">Cylindrical Coordinates</button>
     <button id="buttonEllipsoid">Ellipsoidal Coordinates</button>
+    <button id="buttonDrawCustomTexture">Draw Custom Texture</button>
     <canvas id="c"></canvas>
     <script type="module" src="main.js">
     </script>

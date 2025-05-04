@@ -70,6 +70,15 @@ tTexture.colorSpace = THREE.SRGBColorSpace;
 
 // TAMAGOTCHI MODEL
 let tamagotchi = null;
+let customDraw = false;
+const drawCanvas = document.getElementById('drawCanvas');
+const drawCtx = drawCanvas.getContext('2d');
+const toolPanel = document.getElementById('drawingTools');
+drawCtx.fillStyle = 'white';
+drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+
+const customCanvasTexture = new THREE.CanvasTexture(drawCanvas);
+customCanvasTexture.colorSpace = THREE.SRGBColorSpace;
 
 function planarVertexShader() {
     return `
@@ -80,6 +89,40 @@ function planarVertexShader() {
     }
     `
 }
+
+let isDrawing = false;
+
+drawCanvas.addEventListener('mousedown', (e) => {
+    isDrawing = true;
+    draw(e);
+});
+
+drawCanvas.addEventListener('mousemove', draw);
+drawCanvas.addEventListener('mouseup', () => isDrawing = false);
+drawCanvas.addEventListener('mouseout', () => isDrawing = false);
+let drawColor = '#000000';  
+document.getElementById('colorPicker').addEventListener('input', function (e) {
+    drawColor = e.target.value;
+});
+
+function draw(e) {
+    if (!isDrawing) return;
+
+    const rect = drawCanvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    drawCtx.fillStyle = drawColor;
+    drawCtx.beginPath();
+    drawCtx.arc(x, y, 5, 0, Math.PI * 2);
+    drawCtx.fill();
+
+    customCanvasTexture.needsUpdate = true;
+}
+
+
+
+
 
 function planarFragementShader() {
     return `
@@ -305,26 +348,58 @@ controls.update();
 
 // BUTTONS (from index.html)
 
-document.getElementById('buttonSphere').addEventListener('click', function () {
-    projectionType = tamaGeoSphere;
-    if (tamagotchi) {
-        tamagotchi.traverse(projectionUpdate);
-    } 
-  });
+    document.getElementById('buttonSphere').addEventListener('click', function () {
+        customDraw = false
+        projectionType = tamaGeoSphere;
+        toolPanel.style.display = 'none';
+        if (tamagotchi) {
+            tamagotchi.traverse(projectionUpdate);
+        } 
+    });
   
   document.getElementById('buttonCylinder').addEventListener('click', function () {
+    customDraw = false
     projectionType = tamaGeoCylinder;
+    toolPanel.style.display = 'none';
     if (tamagotchi) {
         tamagotchi.traverse(projectionUpdate);
     }
   });
   
   document.getElementById('buttonEllipsoid').addEventListener('click', function () {
+    customDraw = false
     projectionType = tamaGeoEllipsoid;
+    toolPanel.style.display = 'none';
     if (tamagotchi) {
         tamagotchi.traverse(projectionUpdate);
     }
   });
+
+  document.getElementById('buttonDrawCustomTexture').addEventListener('click', function () {
+    customDraw = !customDraw;
+    document.getElementById('drawingTools').style.display = customDraw ? 'block' : 'none';
+    if (customDraw) {
+        if (tamagotchi) {
+            tamagotchi.traverse(function (mesh) {
+                if (mesh.isMesh) {
+                    mesh.material.map = customCanvasTexture;
+                    mesh.material.needsUpdate = true;
+                }
+            });
+        }
+    } else {
+        projectionType = tamaGeoSphere
+        if (tamagotchi) {
+            tamagotchi.traverse(projectionUpdate);
+            }
+        }
+    });
+    document.getElementById('clearButton').addEventListener('click', function () {
+        drawCtx.fillStyle = 'white';
+        drawCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+        customCanvasTexture.needsUpdate = true;
+    });
+
   
 
 function animate() {
