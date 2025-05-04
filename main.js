@@ -5,13 +5,26 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 const canvas = document.querySelector('#c');
 const loader = new GLTFLoader();
 const scene = new THREE.Scene();
-const cubeTextureLoader = new THREE.cubeTextureLoader()
-const environmentMap = cubeTextureLoader.load([
-
-
-    
+const cubeTextureLoader = new THREE.CubeTextureLoader()
+const cityMap = cubeTextureLoader.load([
+'px.png',
+'nx.png',
+'py.png',
+'ny.png',
+'pz.png',
+'nz.png'
 ])
 
+const mountainMap = cubeTextureLoader.load([
+    'px1.png',
+    'nx1.png',
+    'py1.png',
+    'ny1.png',
+    'pz1.png',
+    'nz1.png'
+    ])
+
+scene.background = cityMap;
 
 //scene.background = new THREE.Color(0xAAAAAA);
 
