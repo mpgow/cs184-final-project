@@ -7,6 +7,27 @@
         body {
             margin: 0;
         }
+        canvas {
+            display: block;
+        }
+        button {
+            position: absolute;
+        }
+        #buttonSphere {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+        #buttonCylinder {
+            position: absolute;
+            top: 10px;
+            left: 200px;
+        }
+        #buttonEllipsoid {
+            position: absolute;
+            top: 10px;
+            left: 400px;
+        }
     </style>
     <script type="importmap">
         {
@@ -19,6 +40,9 @@
     <!--NOTE: Using most recent version as of 4/20/2025-->
 </head>
 <body>
+    <button id="buttonSphere">Spherical Coordinates</button>
+    <button id="buttonCylinder">Cylindrical Coordinates</button>
+    <button id="buttonEllipsoid">Ellipsoidal Coordinates</button>
     <canvas id="c"></canvas>
     <script type="module" src="main.js">
     </script>

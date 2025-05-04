@@ -174,7 +174,7 @@ function tamaGeoEllipsoid(geometry) {
     geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
 }
 
-loader.load('public/tamagotchi_v2.gltf', function (gltf) {
+loader.load('public/tamagotchi_shell_only.gltf', function (gltf) {
     tamagotchi = gltf.scene
     tamagotchi.rotation.y = Math.PI / 2;
     // function shellUpdate(Shell) {
