@@ -41,7 +41,7 @@ const PatrickMap = cubeTextureLoader.load([
 ])
 const plainEnvironment = new THREE.Color(0xAAAAAA)
 
-const environmentArray = [plainEnvironment,cityMap,mountainMap,SFMap]
+const environmentArray = [plainEnvironment,cityMap,mountainMap,SFMap,PatrickMap]
 scene.background = environmentArray[environmentPicker];
 //scene.background = new THREE.Color(0xAAAAAA);
 
