@@ -97,6 +97,20 @@ plane.position.set(0,-.8,0)
 plane.rotation.x = Math.PI / 2
 scene.add(plane)
 
+// SCREEN PLANE
+const sWidth = .69;
+const sHeight = .55;
+const screenGeometry = new THREE.PlaneGeometry(sWidth, sHeight);
+const screenMaterial = new THREE.MeshBasicMaterial({ 
+    color: 0x000000, 
+    side: THREE.DoubleSide 
+});
+const sPlane = new THREE.Mesh(screenGeometry, screenMaterial);
+sPlane.position.set(.29,.19,0);
+// sPlane.rotation.x = Math.PI / 2;
+sPlane.rotation.y = Math.PI / 2;
+scene.add(sPlane);
+
 // Planar Projection Camera
 // const planarCamera = new THREE.PerspectiveCamera(45,1,0.01,10);
 // planarCamera.position.set(0,0,2);
