@@ -82,6 +82,9 @@ scene.add(skyLight);
 const grassTexture = new THREE.TextureLoader().load('grass.jpg', t => {
     t.colorSpace = THREE.SRGBColorSpace;
 });
+const creatureTexture = new THREE.TextureLoader().load('creature.png', t => {
+    t.colorSpace = THREE.SRGBColorSpace;
+});
 
 // PLANE
 const width = 9
