@@ -105,7 +105,7 @@ const sWidth = .69;
 const sHeight = .55;
 const screenGeometry = new THREE.PlaneGeometry(sWidth, sHeight);
 const screenMaterial = new THREE.MeshBasicMaterial({ 
-    color: 0x000000, 
+    map:creatureTexture,
     side: THREE.DoubleSide 
 });
 const sPlane = new THREE.Mesh(screenGeometry, screenMaterial);
