@@ -31,17 +31,10 @@ const SFMap = cubeTextureLoader.load([
     'pz2.png',
     'nz2.png'
     ])
-const PatrickMap = cubeTextureLoader.load([
-    'px3.png',
-    'nx3.png',
-    'py3.png',
-    'ny3.png',
-    'pz3.png',
-    'nz3.png'
-])
 const plainEnvironment = new THREE.Color(0xAAAAAA)
 
-const environmentArray = [plainEnvironment,cityMap,mountainMap,SFMap,PatrickMap]
+// const environmentArray = [plainEnvironment,cityMap,mountainMap,SFMap,PatrickMap]
+const environmentArray = [plainEnvironment,cityMap,mountainMap,SFMap];
 scene.background = environmentArray[environmentPicker];
 //scene.background = new THREE.Color(0xAAAAAA);
 
@@ -67,32 +60,40 @@ const skyIntensity = 3;
 const skyLight = new THREE.HemisphereLight(skyColor, groundColor, skyIntensity);
 scene.add(skyLight);
 
-// YELLOW X CUBE
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const xMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-const xCube = new THREE.Mesh(geometry, xMaterial);
-xCube.position.set(5,0,0)
-scene.add(xCube);
+// // YELLOW X CUBE
+// const geometry = new THREE.BoxGeometry(1, 1, 1);
+// const xMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+// const xCube = new THREE.Mesh(geometry, xMaterial);
+// xCube.position.set(5,0,0)
+// scene.add(xCube);
 
-// BLUE Y CUBE
-const yMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
-const yCube = new THREE.Mesh(geometry, yMaterial);
-yCube.position.set(0,5,0)
-scene.add(yCube);
+// // BLUE Y CUBE
+// const yMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+// const yCube = new THREE.Mesh(geometry, yMaterial);
+// yCube.position.set(0,5,0)
+// scene.add(yCube);
 
-// RED Z CUBE
-const zMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-const zCube = new THREE.Mesh(geometry, zMaterial);
-zCube.position.set(0,0,5)
-scene.add(zCube);
+// // RED Z CUBE
+// const zMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+// const zCube = new THREE.Mesh(geometry, zMaterial);
+// zCube.position.set(0,0,5)
+// scene.add(zCube);
+
+const grassTexture = new THREE.TextureLoader().load('grass.jpg', t => {
+    t.colorSpace = THREE.SRGBColorSpace;
+});
 
 // PLANE
 const width = 9
 const height = 9
 const planeGeometry = new THREE.PlaneGeometry(width, height)
-const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+// const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
+const planeMaterial = new THREE.MeshBasicMaterial({ 
+    map: grassTexture, 
+    side: THREE.DoubleSide 
+});
 const plane = new THREE.Mesh(planeGeometry, planeMaterial)
-plane.position.set(0,-5,0)
+plane.position.set(0,-.8,0)
 plane.rotation.x = Math.PI / 2
 scene.add(plane)
 
@@ -104,7 +105,7 @@ scene.add(plane)
 
 // Pearto texture
 const tLoader = new THREE.TextureLoader();
-const defaultTexture = tLoader.load('pearto.png');
+const defaultTexture = tLoader.load('PeartoSkin.png');
 defaultTexture.colorSpace = THREE.SRGBColorSpace;
 let uploadTexture = defaultTexture;
 let drawnTexture;
@@ -170,11 +171,11 @@ function planarFragementShader() {
     `
 }
 
-function tamaGeoSphere(geometry) {
-    geometry.computeBoundingSphere();
-    const center = geometry.boundingSphere.center;
-    const radius = geometry.boundingSphere.radius;
-    const pos = geometry.attributes.position;
+function tamaGeoSphere(tamaGeometry) {
+    tamaGeometry.computeBoundingSphere();
+    const center = tamaGeometry.boundingSphere.center;
+    const radius = tamaGeometry.boundingSphere.radius;
+    const pos = tamaGeometry.attributes.position;
     const uv = new Float32Array(pos.count * 2);
 
     for ( let i = 0; i < pos.count; i++ ) {
@@ -191,16 +192,16 @@ function tamaGeoSphere(geometry) {
       uv[i * 2] = u;
       uv[(i * 2) + 1] = 1 - v;
     }
-    geometry.setAttribute( 'uv', new THREE.BufferAttribute( uv, 2 ) );
+    tamaGeometry.setAttribute( 'uv', new THREE.BufferAttribute( uv, 2 ) );
 }
 
-function tamaGeoCylinder(geometry) {
-    geometry.computeBoundingBox();
-    const center = geometry.boundingBox.getCenter(new THREE.Vector3);
-    const top = geometry.boundingBox.min.y;
-    const bot = geometry.boundingBox.max.y;
+function tamaGeoCylinder(tamaGeometry) {
+    tamaGeometry.computeBoundingBox();
+    const center = tamaGeometry.boundingBox.getCenter(new THREE.Vector3);
+    const top = tamaGeometry.boundingBox.min.y;
+    const bot = tamaGeometry.boundingBox.max.y;
     const h = top - bot;
-    const pos = geometry.attributes.position;
+    const pos = tamaGeometry.attributes.position;
     const uv = new Float32Array(pos.count * 2);
 
     for ( let i = 0; i < pos.count; i++ ) {
@@ -217,25 +218,25 @@ function tamaGeoCylinder(geometry) {
         uv[i * 2] = u;
         uv[(i * 2) + 1] = 1 - v;
     }
-    geometry.setAttribute( 'uv', new THREE.BufferAttribute( uv, 2 ));
+    tamaGeometry.setAttribute( 'uv', new THREE.BufferAttribute( uv, 2 ));
 }
 
-function tamaGeoEllipsoid(geometry) { 
-    geometry.computeBoundingBox();
-    const center = geometry.boundingBox.getCenter(new THREE.Vector3);
-    const xMin = geometry.boundingBox.min.x;
-    const xMax = geometry.boundingBox.max.x;
+function tamaGeoEllipsoid(tamaGeometry) { 
+    tamaGeometry.computeBoundingBox();
+    const center = tamaGeometry.boundingBox.getCenter(new THREE.Vector3);
+    const xMin = tamaGeometry.boundingBox.min.x;
+    const xMax = tamaGeometry.boundingBox.max.x;
     const xWidth = xMax - xMin;
-    const yMin = geometry.boundingBox.min.y;
-    const yMax = geometry.boundingBox.max.y;
+    const yMin = tamaGeometry.boundingBox.min.y;
+    const yMax = tamaGeometry.boundingBox.max.y;
     const yHeight = yMax - yMin;
-    const zMin = geometry.boundingBox.min.z;
-    const zMax = geometry.boundingBox.max.z;
+    const zMin = tamaGeometry.boundingBox.min.z;
+    const zMax = tamaGeometry.boundingBox.max.z;
     const zLength = zMax - zMin;
     const xRadius = xWidth * 0.5; // a
     const yRadius = yHeight * 0.5; // b
     const zRadius = zLength * 0.5; // c
-    const pos = geometry.attributes.position;
+    const pos = tamaGeometry.attributes.position;
     const uv = new Float32Array(pos.count * 2);
 
     for (let i = 0; i < pos.count; i++) {
@@ -251,7 +252,7 @@ function tamaGeoEllipsoid(geometry) {
         uv[ 2 * i ] = u;
         uv[ 2 * i + 1 ] = 1 - v;
     }
-    geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    tamaGeometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
 }
 
 let tamaBox, tamaSphere;
@@ -286,7 +287,7 @@ function addReference(texture) {
         side: THREE.FrontSide
     });
     refObject = new THREE.Mesh(refGeometry, refMaterial);
-    refObject.position.set(0, 0, 2);
+    refObject.position.set(0, .075, 2);
     if (projectionType == tamaGeoCylinder) {
         refObject.rotation.y = Math.PI / 2;
     } else {
@@ -312,7 +313,7 @@ function projectionUpdate(Shell) {
     }
 }
 
-loader.load('public/simple_sphere.gltf', function (gltf) {
+loader.load('public/tamagotchi_idkkkkkk.gltf', function (gltf) {
     tamagotchi = gltf.scene
     // tamagotchi.rotation.y = Math.PI / 2;
 
@@ -366,60 +367,60 @@ loader.load('public/simple_sphere.gltf', function (gltf) {
 });
 
 
-// Buffer Geometry PLANE (with Pearto)
-const vertices = [
-    // front
-    { pos: [-1, -1, 10], norm: [0, 0, 1], uv: [0, 0], },
-    { pos: [1, -1, 1], norm: [0, 0, 1], uv: [1, 0], },
-    { pos: [-1, 1, 1], norm: [0, 0, 1], uv: [0, 1], },
+// // Buffer Geometry PLANE (with Pearto)
+// const vertices = [
+//     // front
+//     { pos: [-1, -1, 10], norm: [0, 0, 1], uv: [0, 0], },
+//     { pos: [1, -1, 1], norm: [0, 0, 1], uv: [1, 0], },
+//     { pos: [-1, 1, 1], norm: [0, 0, 1], uv: [0, 1], },
 
-    { pos: [-1, 1, 1], norm: [0, 0, 1], uv: [0, 1], },
-    { pos: [1, -1, 1], norm: [0, 0, 1], uv: [1, 0], },
-    { pos: [1, 1, 1], norm: [0, 0, 1], uv: [1, 1], },
-]
+//     { pos: [-1, 1, 1], norm: [0, 0, 1], uv: [0, 1], },
+//     { pos: [1, -1, 1], norm: [0, 0, 1], uv: [1, 0], },
+//     { pos: [1, 1, 1], norm: [0, 0, 1], uv: [1, 1], },
+// ]
 
-const positions = [];
-const normals = [];
-const uvs = [];
-for (const vertex of vertices) {
-    positions.push(...vertex.pos);
-    normals.push(...vertex.norm);
-    uvs.push(...vertex.uv);
-}
+// const positions = [];
+// const normals = [];
+// const uvs = [];
+// for (const vertex of vertices) {
+//     positions.push(...vertex.pos);
+//     normals.push(...vertex.norm);
+//     uvs.push(...vertex.uv);
+// }
 
-const tGeometry = new THREE.BufferGeometry();
-const positionNumComponents = 3;
-const normalNumComponents = 3;
-const uvNumComponents = 2;
-tGeometry.setAttribute(
-    'position',
-    new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents));
-tGeometry.setAttribute(
-    'normal',
-    new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
-tGeometry.setAttribute(
-    'uv',
-    new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
+// const tGeometry = new THREE.BufferGeometry();
+// const positionNumComponents = 3;
+// const normalNumComponents = 3;
+// const uvNumComponents = 2;
+// tGeometry.setAttribute(
+//     'position',
+//     new THREE.BufferAttribute(new Float32Array(positions), positionNumComponents));
+// tGeometry.setAttribute(
+//     'normal',
+//     new THREE.BufferAttribute(new Float32Array(normals), normalNumComponents));
+// tGeometry.setAttribute(
+//     'uv',
+//     new THREE.BufferAttribute(new Float32Array(uvs), uvNumComponents));
 
-// const tLoader = new THREE.TextureLoader();
-// const tTexture = tLoader.load('pearto.png');
-// tTexture.colorSpace = THREE.SRGBColorSpace;
-const tColor = 0xffffff
-function makeInstance(tGeometry, tColor, x) {
+// // const tLoader = new THREE.TextureLoader();
+// // const tTexture = tLoader.load('pearto.png');
+// // tTexture.colorSpace = THREE.SRGBColorSpace;
+// const tColor = 0xffffff
+// function makeInstance(tGeometry, tColor, x) {
 
-    const tMaterial = new THREE.MeshPhongMaterial({ color: tColor, map: defaultTexture, side: THREE.FrontSide });
+//     const tMaterial = new THREE.MeshPhongMaterial({ color: tColor, map: defaultTexture, side: THREE.FrontSide });
 
-    const tPlane = new THREE.Mesh(tGeometry, tMaterial);
-    tPlane.castShadow = true;
-    tPlane.receiveShadow = true;
-    scene.add(tPlane);
+//     const tPlane = new THREE.Mesh(tGeometry, tMaterial);
+//     tPlane.castShadow = true;
+//     tPlane.receiveShadow = true;
+//     scene.add(tPlane);
 
-    tPlane.position.x = x;
-    return tPlane;
+//     tPlane.position.x = x;
+//     return tPlane;
 
-}
+// }
 
-const tPlane = makeInstance(tGeometry, tColor, -4)
+// const tPlane = makeInstance(tGeometry, tColor, -4)
 
 // CAMERA
 const fov = 45;
@@ -427,7 +428,7 @@ const aspect = window.innerWidth / window.innerHeight // 2;  // the canvas defau
 const near = 0.1;
 const far = 100;
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(0, 0, 10);
+camera.position.set(-10, 0, 0);
 
 // CAM CONTROLS (ORBIT)
 const controls = new OrbitControls(camera, canvas);
@@ -560,14 +561,14 @@ document.getElementById('buttonScene').addEventListener('click', function () {
 
 function animate() {
 
-    xCube.rotation.x += 0.00;
-    xCube.rotation.y += 0.00;
+    // xCube.rotation.x += 0.00;
+    // xCube.rotation.y += 0.00;
 
-    yCube.rotation.x += 0.00;
-    yCube.rotation.y += 0.00;
+    // yCube.rotation.x += 0.00;
+    // yCube.rotation.y += 0.00;
 
-    zCube.rotation.x += 0.00;
-    zCube.rotation.y += 0.00;
+    // zCube.rotation.x += 0.00;
+    // zCube.rotation.y += 0.00;
 
     if (tamagotchi) {
         tamagotchi.rotation.x -= 0.00;  
