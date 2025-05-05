@@ -273,7 +273,7 @@ function projectionUpdate(Shell) {
     }
 }
 
-loader.load('public/tamagotchi_idkkkkkk.gltf', function (gltf) {
+loader.load('public/simple_sphere.gltf', function (gltf) {
     tamagotchi = gltf.scene
     // tamagotchi.rotation.y = Math.PI / 2;
 
